@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024">
+    <title>Senarai JPK</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="assets/icon_jpk.png"> <!-- Favicon Link -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .profile-image {
+            max-width: 250px;
+            max-height: 250px;
+            border-radius: 5%;
+            margin-right: 20px;
+            cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .profile-details h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .profile-details p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .whatsapp-link {
+            margin-top: 10px;
+        }
+
+        .whatsapp-link a {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 15px;
+            border: 2px solid #25D366;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .whatsapp-link a:hover {
+            background-color: #25D366;
+            color: #ffffff;
+        }
+
+        .home-button {
+            position: absolute; /* Fixes the button in the viewport */
+            top: 10px;
+            left: 10px;
+            background-color: #782982;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+            z-index: 1000; /* Ensures the button is on top of other content */
+        }
+        
+        .home-button:hover {
+            background-color: #5a1f63;
+        }
+
+        /* Styles for date, time, and day */
+        .datetime-container {
+            text-align: right;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-right: 20px;
+        }
+
+        #currentDate, #currentTime {
+            display: block; /* Display each on a new line */
+        }
+
+        #currentDate {
+            font-weight: bold;
+        }
+
+        #currentTime {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        /* Styles for header */
+        .schedule-header {
+            background-color: #782982;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* Styles for the modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Hide scrollbars */
+            background-color: rgba(0,0,0,0.8); /* Black with opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content img {
+            max-width: 90%; /* Limit max width to 90% of viewport width */
+            max-height: 90%; /* Limit max height to 90% of viewport height */
+            width: auto; /* Auto width to maintain aspect ratio */
+            height: auto; /* Auto height to maintain aspect ratio */
+            border-radius: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #ddd;
+        }
+
+        /* Hide the button by default */
+        #goTopBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #782982;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s; /* Transition effects */
+            opacity: 0; /* Fully transparent by default */
+            transform: translateY(20px); /* Start off below its final position */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #goTopBtn.show {
+            display: flex; /* Make the button visible */
+            opacity: 1; /* Fully opaque */
+            transform: translateY(0); /* Move to its final position */
+        }
+
+        #goTopBtn:hover {
+            background-color: #5a1f63;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="schedule-header">
+    SENARAI JAWATANKUASA PERWAKILAN KOLEJ
+    <!-- Home Button -->
+   <!-- <a href="menu.php" class="home-button">Home</a> -->
+</div>
+
+<!-- Go to top button -->
+<button id="goTopBtn">&#8679;</button>
+
+<div class="datetime-container">
+    <span id="currentDate"></span>
+    <span id="currentTime"></span>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <img id="modalImage" src="" alt="Full view">
+    </div>
+</div>
+
+<!-- Profile Template -->
+<script>
+    function createWhatsAppLink(phone, name) {
+        const baseURL = `https://wa.me/${phone}`;
+        const message = encodeURIComponent(`Assalamualaikum JPK ${name}`);
+        return `${baseURL}?text=${message}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const profiles = [
+            { id: 1, name: "Amirul", phone: "601110608120" },
+            { id: 2, name: "Yasmin", phone: "60176949075" },
+            { id: 3, name: "Alep", phone: "601157096386" },
+            { id: 4, name: "Hafsah", phone: "601135618679" },
+            { id: 5, name: "Shaqyla", phone: "60178636585" },
+            { id: 6, name: "Edy", phone: "60195494619" },
+            { id: 7, name: "Ququ", phone: "60174317781" },
+            { id: 8, name: "Nishino", phone: "60189040201" },
+            { id: 9, name: "Akmal", phone: "601163258136" },
+            { id: 10, name: "Afzan", phone: "60189518840" },
+            { id: 11, name: "Hanis", phone: "60132698478" },
+            { id: 12, name: "Laila", phone: "60102960881" },
+            { id: 13, name: "Hawa", phone: "60199502774" },
+            { id: 14, name: "Fiqa", phone: "60194805083" },
+            { id: 15, name: "Kz", phone: "60102166151" },
+            { id: 16, name: "Puteri", phone: "60174304576" },
+            { id: 17, name: "Fina", phone: "60146701460" },
+            { id: 18, name: "Farah", phone: "60142569450" }
+        ];
+
+        profiles.forEach(profile => {
+            document.getElementById(`profile-link-${profile.id}`).href = createWhatsAppLink(profile.phone, profile.name);
+        });
+    });
+    </script>
+
+    <script>
+    function updateDateTime() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('en-MY', options);
+        const formattedTime = now.toLocaleTimeString('en-MY');
+
+        document.getElementById('currentDate').innerHTML = formattedDate;
+        document.getElementById('currentTime').innerHTML = formattedTime;
+    }
+
+    // Update time every second
+    setInterval(updateDateTime, 1000);
+    updateDateTime(); // Initial call
+
+    // Show or hide the button based on scroll position
+    window.addEventListener('scroll', function () {
+    const button = document.getElementById('goTopBtn');
+    if (window.scrollY > 300) { // Show button when scrolled more than 300px
+        button.classList.add('show');
+    } else {
+        button.classList.remove('show');
+    }
+});
+
+document.getElementById('goTopBtn').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+</script>
+
+
+<!-- Profile 1 -->
+<div class="container">
+    <img src="assets/amirul.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+    <div class="profile-details">
+        <h2>MUHAMMAD AMIRUL BIN RASIDI</h2>
+        <p>Program: CEEH225</p>
+        <p>Jawatan: Presiden</p>
+        <div class="whatsapp-link">
+            <a id="profile-link-1" href="#" target="_blank">WhatsApp Me</a>
+        </div>
+    </div>
+</div>
+
+<!-- Profile 2 -->
+<div class="container">
+        <img src="assets/yasmin.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>YASMIN AYDA BINTI FAIZAL ABBAS</h2>
+            <p>Program: CEEE200</p>
+            <p>Jawatan: Timbalan Presiden</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-2" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 3 -->
+    <div class="container">
+        <img src="assets/alep.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>MUHAMMAD ALIF BIN ZAKARIA</h2>
+            <p>Program: CEEE211</p>
+            <p>Jawatan: Setiausaha 1</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-3" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 4 -->
+    <div class="container">
+        <img src="assets/hafsah.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>NUR HAFSAH BINTI ANSARUDDIN</h2>
+            <p>Program: HM116</p>
+            <p>Jawatan: Setiausaha 2</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-4" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 5 -->
+    <div class="container">
+        <img src="assets/shaqyla.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>SHAQYLA TASNIM BINTI SHAHARUDY</h2>
+            <p>Program: CEEH225</p>
+            <p>Jawatan: Bendahari</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-5" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 6 -->
+    <div class="container">
+        <img src="assets/edy.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>AIDIL NATALIANO BIN GURUBOT</h2>
+            <p>Program: CEEC221</p>
+            <p>Jawatan: Exco Multimedia & Sebaran AM</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-6" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 7 -->
+    <div class="container">
+        <img src="assets/ququ.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>MOHAMAD QUWAIDIR SYAFIQ BIN MOHAMAD AZHAR</h2>
+            <p>Program: CEEC221</p>
+            <p>Jawatan: Exco Multimedia & Sebaran AM</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-7" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 8 -->
+    <div class="container">
+        <img src="assets/nishino.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>MUHAMMAD HAIQAL NISHINO BIN SOJI NISHINO </h2>
+            <p>Program: CEEH225</p>
+            <p>Jawatan: Exco Multimedia & Sebaran AM</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-8" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 9 -->
+    <div class="container"> 
+        <img src="assets/akmal.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>AKMAL BIN HASROL</h2>
+            <p>Program: CEEM245</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-9" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 10 -->
+    <div class="container">
+        <img src="assets/afzan.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>FARKHIAL AFZAN BIN NAZRI</h2>
+            <p>Program: HM112</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-10" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 11 -->
+    <div class="container">
+        <img src="assets/hanis.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>NURHANIS KAMILIA BINTI HUSNIMAN</h2>
+            <p>Program: HM110</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-11" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 12 -->
+    <div class="container">
+        <img src="assets/laila.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>LAILA NATASYA BALQIS BINTI PISOL</h2>
+            <p>Program: HM110</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-12" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 13 -->
+    <div class="container">
+        <img src="assets/hawa.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>NUR HAWA ARYANTY BINTI MOHD ANIS</h2>
+            <p>Program: CEEE211</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-13" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 14 -->
+    <div class="container">
+        <img src="assets/fiqah.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>SITI NUR IRDINA AFIQAH BINTI NORAZMI</h2>
+            <p>Program: CEEH225</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-14" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 15 -->
+    <div class="container">
+        <img src="assets/kz.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>MOHD AMIRUL KHUZAINIE BIN ZAKARIA</h2>
+            <p>Program: CEEE211</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-15" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 16 -->
+    <div class="container">
+        <img src="assets/puteri.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>PUTERI NUR ALIANA BINTI ZAZALI </h2>
+            <p>Program: HM110</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-16" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 17 -->
+    <div class="container">
+        <img src="assets/fina.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>ALYA SOFINA BINTI ABDUL HALIM</h2>
+            <p>Program: HM111</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-17" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile 18 -->
+    <div class="container">
+        <img src="assets/farah.jpg" alt="Profile Image" class="profile-image" onclick="openModal(this.src)">
+        <div class="profile-details">
+            <h2>NUR FARAH ADRIANA BINTI NAZRI</h2>
+            <p>Program: HM110</p>
+            <p>Jawatan: Ahli Jawatankuasa Perwakilan Kolej</p>
+            <div class="whatsapp-link">
+            <a id="profile-link-18" href="#" target="_blank">WhatsApp Me</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    // Modal functionality
+    const modal = document.getElementById("imageModal");
+    const modalImage = document.getElementById("modalImage");
+    const closeButton = document.getElementsByClassName("close")[0];
+    
+    function openModal(src) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('myModal').style.display = 'flex';
+    }
+
+    document.getElementById('closeModal').onclick = function() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('myModal')) {
+            document.getElementById('myModal').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
